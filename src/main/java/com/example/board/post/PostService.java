@@ -3,6 +3,8 @@ package com.example.board.post;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +13,8 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 @Transactional(readOnly = true)
 public class PostService {
+
+	private static final Logger log = LoggerFactory.getLogger(PostService.class);
 
 	private final PostRepository postRepository;
 
@@ -42,13 +46,22 @@ public class PostService {
 	@Transactional
 	public Post update(Long id, PostRequest request, String userId) {
 		Post post = find(id);
+		if (!post.getAuthor().equals(userId)) {
+			log.warn("수정 권한 없음: postId={}, author={}", id, post.getAuthor());
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "작성자만 수정할 수 있습니다.");
+		}
 		post.update(request.title(), request.content());
 		return post;
 	}
 
 	@Transactional
 	public void delete(Long id, String userId) {
-		postRepository.delete(find(id));
+		Post post = find(id);
+		if (post.getAuthor() != userId) {
+			log.warn("삭제 권한 없음: postId={}, author={}", id, post.getAuthor());
+			throw new ResponseStatusException(HttpStatus.FORBIDDEN, "작성자만 삭제할 수 있습니다.");
+		}
+		postRepository.delete(post);
 	}
 
 }
