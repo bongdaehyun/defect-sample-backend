@@ -29,7 +29,7 @@ public class PostService {
 	public List<Post> search(String keyword, LocalDate from, LocalDate to) {
 		String trimmed = keyword == null || keyword.isBlank() ? null : keyword.trim();
 		LocalDateTime start = from.atStartOfDay();
-		LocalDateTime end = to == null ? null : to.plusDays(1).atStartOfDay();
+		LocalDateTime end = to == null ? null : to.atStartOfDay();
 		return postRepository.search(trimmed, start, end);
 	}
 

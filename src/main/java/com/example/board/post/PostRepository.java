@@ -14,7 +14,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 			select p from Post p
 			where (:keyword is null or p.title like concat('%', :keyword, '%'))
 			  and (:start is null or p.createdAt >= :start)
-			  and (:end is null or p.createdAt < :end)
+			  and (:end is null or p.createdAt <= :end)
 			order by p.id desc
 			""")
 	List<Post> search(@Param("keyword") String keyword, @Param("start") LocalDateTime start,
